@@ -239,10 +239,20 @@ func rm(path string) error {
         return err
     }
 
-    err = client.RemoveAll(path)
-    if err != nil {
-        fmt.Printf("Rm path failed, path: %s, error: %s", path, err.Error())
-        return err
+    if strings.Index(path, "/user/work/.Trash/") < 0 {
+        // move to trash
+        trashPath := "/user/work/.Trash/Current" + path
+        err = client.Rename(path, trashPath)
+        if err != nil {
+            fmt.Printf("Rm path to trash failed, path: %s, error: %s", path, err.Error())
+            return err
+        }
+    } else {
+        err = client.RemoveAll(path)
+        if err != nil {
+            fmt.Printf("Rm path failed, path: %s, error: %s", path, err.Error())
+            return err
+        }
     }
 
     return nil
